@@ -41,9 +41,13 @@ app.post('/selectedCustomerData', (req, res) => {
     for(let cust of selectedCustomerIds){
         toSend[cust] = allCustomerData[cust];
     }
-    console.log(toSend);
-
     res.send(toSend)
+});
+
+app.post('/updateCustomerData', (req, res) => {
+    let dirtyCustomerData = req.body.dirtyCustomerData;
+    Object.assign(myData.customerData, dirtyCustomerData);
+    res.send("success")
 });
 
 
