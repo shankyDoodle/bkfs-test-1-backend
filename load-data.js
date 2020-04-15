@@ -15,35 +15,57 @@ class LoadData {
 
     _prepareCustomerListData(){
         let customerFileMapRaw = fs.readFileSync(baseDirectory+'customers-file-map.json');
-        this.customerList = JSON.parse(customerFileMapRaw);
+        let oCustomerListJson = JSON.parse(customerFileMapRaw);
+
+        let oFinal = {};
+        for(let sKey in oCustomerListJson){
+            let oTemp = {};
+            let sId = sKey.split(" ").join("_").toLocaleLowerCase();
+            oTemp["id"] = sId
+            oTemp["label"]=sKey;
+            oTemp["fileLocation"]=oCustomerListJson[sKey];
+            oFinal[sId] = oTemp
+        }
+
+        this.customerList = oFinal
     }
 
     _prepareCustomerDataData(){
-        let classificationsPath = baseDirectory+"classifications/";
-        let aFiles = fs.readdirSync(classificationsPath);
-        let _this = this;
-
-        for(let i=0; i<aFiles.length;i++){
-            let sFileToRead = aFiles[i];
-            let csvDataString = fs.readFileSync(classificationsPath+sFileToRead, { encoding : 'utf8'});
+        let customerList = this.customerList;
+        for(let custId in customerList){
+            let oData = customerList[custId];
+            let sFilePath = baseDirectory+oData.fileLocation;
+            let csvDataString = fs.readFileSync(sFilePath, { encoding : 'utf8'});
             let jsonArray = csvjson.toObject(csvDataString);
-            let customerName = sFileToRead.split(".")[0];
-            _this.originalClassificationCustomerData[customerName] = jsonArray;
+            this.originalClassificationCustomerData[custId] = jsonArray;
 
             let temp={}
             for(let oData of jsonArray){
                 temp[oData["Document Type"]] = oData["Customer Document Type"]
             }
-            _this.customerData[customerName] = temp;
+            this.customerData[custId] = temp;
         }
     }
 
     _prepareDocumentTypesAndSamplesData(){
         let documentTypesRaw = fs.readFileSync(baseDirectory+'documents-file-map.json');
-        this.documentTypes = JSON.parse(documentTypesRaw);
+        let oDocListJson = JSON.parse(documentTypesRaw);
+
+        let oFinal = {};
+        for(let sKey in oDocListJson){
+            let oTemp = {};
+            let sId = sKey.split(" ").join("_").toLocaleLowerCase();
+            oTemp["id"] = sId
+            oTemp["label"]=sKey;
+            oTemp["fileLocation"]=oDocListJson[sKey];
+            oFinal[sId] = oTemp
+        }
+        this.documentTypes = oFinal
+
         for(let sDocType in this.documentTypes){
-            if(!!this.documentTypes[sDocType]){
-                let pdfPath = baseDirectory+this.documentTypes[sDocType];
+            let sFileLocation = this.documentTypes[sDocType].fileLocation;
+            if(!!sFileLocation){
+                let pdfPath = baseDirectory + sFileLocation;
                 this.documentSamples[sDocType] = fs.readFileSync(pdfPath);
             }
         }
@@ -55,7 +77,7 @@ class LoadData {
         let jsonArray = csvjson.toObject(csvDataString);
 
         for (let sKey in this.documentTypes) {
-            let aFiltered = jsonArray.filter(oData => oData["Document Type"] === sKey);
+            let aFiltered = jsonArray.filter(oData => oData["Document Type"].split(" ").join("_").toLocaleLowerCase() === sKey);
             let oGroups = {};
             for (let oFiltered of aFiltered) {
                 let sCurrentGroupId = oFiltered['Group Number'];
@@ -91,7 +113,6 @@ class LoadData {
         this._prepareCustomerDataData();
         this._prepareDocumentTypesAndSamplesData();
         this._prepareGroupedDocElementsMap();
-        console.log("hi");
     }
 
 }
