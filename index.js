@@ -74,4 +74,12 @@ app.post('/selectedDocumentSamples', (req, res) => {
 });
 
 
+app.get('/getGroupedDocumentElements', (req, res) => {
+    let docId = req.query.documentId;
+    let oAllGroups = myData.groupedDocElementsMap;
+    let toSend = oAllGroups[docId];
+    res.send(toSend);
+});
+
+
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
