@@ -4,8 +4,9 @@ const express = require('express')
 const cors = require('cors');
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid');
-
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const fileUpload = require('express-fileupload');
 
 const OK = 200;
 const CREATED = 201;
@@ -25,6 +26,12 @@ const app = express()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
+app.use(bodyParser.json({limit: '10mb', extended: true}))
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}))
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(fileUpload());
+
 app.use(cors())
 
 app.get('/customerList', (req, res) => res.send(myData.customerList));
@@ -139,6 +146,11 @@ app.post('/addNewDocumentType', (req, res) => {
         newDocumentType:oNewDocument
     }
     res.send(toSend)
+});
+
+app.post('/addNewDocumentSample', (req, res) => {
+    console.log(req.body);
+    res.send("PDF uploaded successfully!");
 });
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
