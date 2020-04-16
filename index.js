@@ -57,8 +57,6 @@ app.get('/getSampleDocument', (req, res) => {
 app.get('/getGroupedDocumentElements', (req, res) => {
     let docId = req.query.documentId;
     let oAllGroups = myData.groupedDocElementsMap;
-    console.log(myData.documentTypes)
-    console.log("\n\n\ndjdjfhdsgjhgsdhsf\n\n\n", oAllGroups);
     let toSend = oAllGroups[docId];
     res.send(toSend);
 });
@@ -101,6 +99,13 @@ app.get('/getAllGroupsCSVData', (req, res) => {
         i++;
     }
     res.send(ans);
+});
+
+
+app.post('/saveGroupedDocumentElements', (req, res) => {
+    let docId = req.body.selectedDocumentId;
+    myData.groupedDocElementsMap[docId] = req.body.groupedDocumentElements;
+    res.send("success")
 });
 
 
