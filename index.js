@@ -3,6 +3,7 @@
 const express = require('express')
 const cors = require('cors');
 const fs = require('fs')
+const { v4: uuidv4 } = require('uuid');
 
 const bodyParser = require('body-parser');
 
@@ -108,5 +109,36 @@ app.post('/saveGroupedDocumentElements', (req, res) => {
     res.send("success")
 });
 
+app.post('/addNewCustomer', (req, res) => {
+    let newId = uuidv4()
+    let oNewCustomer = {
+        id: newId,
+        label: req.body.newCustomerName,
+    }
+    myData.customerList[newId] = oNewCustomer
+
+    myData.customerData[newId] = {};
+    let toSend = {
+        customerList:myData.customerList,
+        newCustomer:oNewCustomer
+    }
+    res.send(toSend)
+});
+
+app.post('/addNewDocumentType', (req, res) => {
+    let newId = uuidv4()
+    let oNewDocument = {
+        id: newId,
+        label: req.body.newDocumentTypeName,
+    }
+    myData.documentTypes[newId] = oNewDocument
+
+    myData.groupedDocElementsMap[newId] = [];
+    let toSend = {
+        documentTypes:myData.documentTypes,
+        newDocumentType:oNewDocument
+    }
+    res.send(toSend)
+});
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
