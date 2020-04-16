@@ -66,7 +66,9 @@ class LoadData {
             let sFileLocation = this.documentTypes[sDocType].fileLocation;
             if(!!sFileLocation){
                 let pdfPath = baseDirectory + sFileLocation;
-                this.documentSamples[sDocType] = fs.readFileSync(pdfPath);
+                let bitmap = fs.readFileSync(pdfPath);
+                let sampleBase64 = new Buffer(bitmap).toString('base64');
+                this.documentSamples[sDocType] = sampleBase64;
             }
         }
     }

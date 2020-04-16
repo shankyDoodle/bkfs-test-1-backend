@@ -5,9 +5,6 @@ const cors = require('cors');
 const fs = require('fs')
 
 const bodyParser = require('body-parser');
-// const process = require('process');
-// const url = require('url');
-// const queryString = require('querystring');
 
 const OK = 200;
 const CREATED = 201;
@@ -50,35 +47,60 @@ app.post('/updateCustomerData', (req, res) => {
     res.send("success")
 });
 
-
-app.get('/getSingleDocumentSample', (req, res) => {
+app.get('/getSampleDocument', (req, res) => {
     let docId = req.query.documentId;
-
-    // let allDocumentSamples = myData.documentSamples;
-    // let toSend = {};
-    // for(let docId of selectedDocumentIds){
-    //     toSend[docId] = allDocumentSamples[docId];
-    // }
-    // res.send(toSend)
-});
-
-app.post('/selectedDocumentSamples', (req, res) => {
-    let selectedDocumentIds = req.body.selectedDocumentTypeIds;
-
     let allDocumentSamples = myData.documentSamples;
-    let toSend = {};
-    for(let docId of selectedDocumentIds){
-            toSend[docId] = allDocumentSamples[docId];
-    }
+    let toSend = allDocumentSamples[docId];
     res.send(toSend)
 });
-
 
 app.get('/getGroupedDocumentElements', (req, res) => {
     let docId = req.query.documentId;
     let oAllGroups = myData.groupedDocElementsMap;
+    console.log(myData.documentTypes)
+    console.log("\n\n\ndjdjfhdsgjhgsdhsf\n\n\n", oAllGroups);
     let toSend = oAllGroups[docId];
     res.send(toSend);
+});
+
+app.get('/getAllGroupsCSVData', (req, res) => {
+    let oAllGroups = myData.groupedDocElementsMap;
+    let documentTypesDict = myData.documentTypes;
+    let docIds = Object.keys(documentTypesDict);
+
+    let maxLength = -Infinity;
+    let aElementsWrapper = [];
+    for(let i=0; i<docIds.length; i++){
+        let aDocElements = [];
+        let aAllGroupsForThisDoc = oAllGroups[docIds[i]];
+        for(let j=0; j<aAllGroupsForThisDoc.length; j++){
+            let oGroup = aAllGroupsForThisDoc[j];
+            let allElementsInThisGroup = oGroup.dataElements;
+            aDocElements = aDocElements.concat(allElementsInThisGroup);
+        }
+        maxLength = Math.max(aDocElements.length, maxLength);
+        aElementsWrapper.push(aDocElements);
+    }
+
+    let ans = [];
+
+    let aDocLabels = docIds.map(id=>documentTypesDict[id].label);
+    ans.push(aDocLabels);
+
+    let i=0;
+    while(i<maxLength){
+        let temp = [];
+        for(let j=0; j<aElementsWrapper.length;j++){
+            if(aElementsWrapper[j][i]){
+                temp.push(aElementsWrapper[j][i])
+            }else{
+                temp.push("");
+            }
+        }
+        ans.push(temp);
+        i++;
+    }
+    res.send(ans);
 });
 
 
