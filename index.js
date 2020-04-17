@@ -7,8 +7,6 @@ const { v4: uuidv4 } = require('uuid');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
-const multer = require('multer')
-const fsExtra = require('fs-extra');
 
 const OK = 200;
 const CREATED = 201;
