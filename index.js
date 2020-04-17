@@ -7,6 +7,8 @@ const { v4: uuidv4 } = require('uuid');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
+const multer = require('multer')
+const fsExtra = require('fs-extra');
 
 const OK = 200;
 const CREATED = 201;
@@ -148,9 +150,27 @@ app.post('/addNewDocumentType', (req, res) => {
     res.send(toSend)
 });
 
+
 app.post('/addNewDocumentSample', (req, res) => {
-    console.log(req.body);
-    res.send("PDF uploaded successfully!");
+    if (req.files === null) {
+        return res.status(BAD_REQUEST).json({ msg: 'No file uploaded' });
+    }
+
+    const file = req.files.file;
+    let docId = req.body.documentId;
+    let sPath = `${__dirname}/uploads/${file.name}`;
+    file.mv(sPath, err => {
+        if (err) {
+            console.error(err);
+            return res.status(SERVER_ERROR).send(err);
+        }
+
+        let bitmap = fs.readFileSync(sPath);
+        let sBase64 = new Buffer(bitmap).toString('base64');
+        myData.documentSamples[docId] = sBase64
+
+        res.send(sBase64);
+    });
 });
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
